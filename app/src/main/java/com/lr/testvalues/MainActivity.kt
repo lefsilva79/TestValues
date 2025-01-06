@@ -1,6 +1,6 @@
-//ok 227 linhas
 package com.lr.testvalues
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,6 +83,7 @@ fun MainScreen() {
     var isActive by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableStateOf(0) }
     var showValues by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val density = LocalDensity.current
     fun Int.pxToDp() = with(density) { this@pxToDp.toDp() }
@@ -152,12 +154,19 @@ fun MainScreen() {
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 16.dp)
                         ) {
-                            // Valor principal
+                            // Valor principal com clickable
                             Text(
                                 text = "$${item.value}",
                                 fontSize = 98.pxToDp().value.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier
+                                    .padding(bottom = 8.dp)
+                                    .clickable {
+                                        val intent = Intent(context, DetailActivity::class.java).apply {
+                                            putExtra("value", item.value)
+                                        }
+                                        context.startActivity(intent)
+                                    }
                             )
 
                             // Informações dos itens
