@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import android.util.Log
 
 data class BatchItem(
     val value: String = "12.02",
@@ -40,9 +41,24 @@ data class Store(
 )
 
 private fun generateRandomBatchItems(): List<BatchItem> {
+    val value1 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+    val value2 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+    val value3 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+    val value4 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+    val value5 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+    val value6 = String.format("%.2f", Random.nextDouble(7.0, 200.0))
+
+    // Log dos valores gerados
+    Log.d("TestValues", "Generated value 1: $$value1")
+    Log.d("TestValues", "Generated value 2: $$value2")
+    Log.d("TestValues", "Generated value 3: $$value3")
+    Log.d("TestValues", "Generated value 4: $$value4")
+    Log.d("TestValues", "Generated value 5: $$value5")
+    Log.d("TestValues", "Generated value 6: $$value6")
+
     return listOf(
         BatchItem(
-            value = String.format("%.2f", Random.nextDouble(7.0, 200.0)),
+            value = value1,
             distance = "5.3 mi",
             itemsInfo = "2 shop and deliver • 61 items (78 units)",
             stores = listOf(
@@ -51,12 +67,46 @@ private fun generateRandomBatchItems(): List<BatchItem> {
             )
         ),
         BatchItem(
-            value = String.format("%.2f", Random.nextDouble(7.0, 200.0)),
+            value = value2,
             distance = "4.8 mi",
             itemsInfo = "2 shop and deliver • 55 items (72 units)",
             stores = listOf(
                 Store("Walmart", "1100 S Rand Rd, Lake Zurich"),
                 Store("Target", "1850 S Grove Ave, Arlington Heights")
+            )
+        ),
+        BatchItem(
+            value = value3,
+            distance = "3.2 mi",
+            itemsInfo = "1 shop and deliver • 42 items (50 units)",
+            stores = listOf(
+                Store("Costco", "999 N Milwaukee Ave, Vernon Hills")
+            )
+        ),
+        BatchItem(
+            value = value4,
+            distance = "6.1 mi",
+            itemsInfo = "2 shop and deliver • 38 items (45 units)",
+            stores = listOf(
+                Store("Whole Foods", "760 W Rand Rd, Arlington Heights"),
+                Store("Jewel-Osco", "440 E Rand Rd, Arlington Heights")
+            )
+        ),
+        BatchItem(
+            value = value5,
+            distance = "2.9 mi",
+            itemsInfo = "2 shop and deliver • 45 items (52 units)",
+            stores = listOf(
+                Store("Fresh Market", "1600 S Milwaukee Ave, Libertyville"),
+                Store("Trader Joe's", "127 N Milwaukee Ave, Vernon Hills")
+            )
+        ),
+        BatchItem(
+            value = value6,
+            distance = "5.5 mi",
+            itemsInfo = "1 shop and deliver • 28 items (35 units)",
+            stores = listOf(
+                Store("Sam's Club", "900 S Barrington Rd, Streamwood")
             )
         )
     )
@@ -218,21 +268,24 @@ fun MainScreen() {
     LaunchedEffect(refreshKey) {
         if (isActive) {
             changeCount = 0
-            showValues = false  // Limpa a tela
-            delay(1000)  // Delay de 1 segundo com a tela limpa
+            showValues = false
+            delay(1000)
             items = generateRandomBatchItems()
+            Log.d("TestValues", "Values updated - Change count: $changeCount/5")
             showValues = true
 
             while (isActive && changeCount < 5) {
-                delay(500)
-                showValues = false  // Limpa a tela
-                delay(1000)  // Delay de 1 segundo com a tela limpa
+                delay(300)
+                showValues = false
+                delay(1000)
                 items = generateRandomBatchItems()
-                showValues = true
                 changeCount++
+                Log.d("TestValues", "Values updated - Change count: $changeCount/5")
+                showValues = true
 
                 if (changeCount >= 5) {
                     isActive = false
+                    Log.d("TestValues", "Finished generating values")
                 }
             }
         }
