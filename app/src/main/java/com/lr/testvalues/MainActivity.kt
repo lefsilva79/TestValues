@@ -8,13 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 import android.util.Log
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 data class BatchItem(
     val value: String,
@@ -40,7 +36,7 @@ data class Store(
     val address: String
 )
 
-private const val NUMBER_OF_ITEMS = 6 //entre 2 e 6
+private const val NUMBER_OF_ITEMS = 6
 
 private fun generateRandomBatchItems(): List<BatchItem> {
     val batchItems = mutableListOf<BatchItem>()
@@ -84,6 +80,8 @@ fun MainScreen() {
     var isActive by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableStateOf(0) }
     var showValues by remember { mutableStateOf(false) }
+    var isAutoGenerateEnabled by remember { mutableStateOf(true) }
+    var isRefreshing by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -116,6 +114,24 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = isAutoGenerateEnabled,
+                    onCheckedChange = { checked ->
+                        isAutoGenerateEnabled = checked
+                    }
+                )
+                Text(
+                    text = "Gerar valores automaticamente",
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
@@ -141,59 +157,71 @@ fun MainScreen() {
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = {
+                    if (!isAutoGenerateEnabled && !isActive) {
+                        isRefreshing = true
+                        isActive = true
+                        refreshKey++
+                    }
+                },
+                modifier = Modifier.weight(1f)
             ) {
-                if (showValues) {
-                    items(items) { item ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp)
-                        ) {
-                            Text(
-                                text = "$${item.value}",
-                                fontSize = 98.pxToDp().value.sp,
-                                fontWeight = FontWeight.Bold,
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    if (showValues) {
+                        items(items) { item ->
+                            Column(
                                 modifier = Modifier
-                                    .padding(bottom = 8.dp)
-                                    .clickable {
-                                        val intent = Intent(context, DetailActivity::class.java).apply {
-                                            putExtra("value", item.value)
-                                        }
-                                        context.startActivity(intent)
-                                    }
-                            )
-
-                            Text(
-                                text = item.itemsInfo,
-                                fontSize = 47.pxToDp().value.sp,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-
-                            Text(
-                                text = item.distance,
-                                fontSize = 48.pxToDp().value.sp,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-
-                            item.stores.forEach { store ->
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                            ) {
                                 Text(
-                                    text = "${store.name}\n${store.address}",
+                                    text = "$${item.value}",
+                                    fontSize = 98.pxToDp().value.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .padding(bottom = 8.dp)
+                                        .clickable {
+                                            val intent = Intent(context, DetailActivity::class.java).apply {
+                                                putExtra("value", item.value)
+                                            }
+                                            context.startActivity(intent)
+                                        }
+                                )
+
+                                Text(
+                                    text = item.itemsInfo,
                                     fontSize = 47.pxToDp().value.sp,
                                     color = Color.Gray,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                            }
 
-                            Divider(
-                                modifier = Modifier.padding(top = 8.dp),
-                                color = Color.LightGray
-                            )
+                                Text(
+                                    text = item.distance,
+                                    fontSize = 48.pxToDp().value.sp,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+
+                                item.stores.forEach { store ->
+                                    Text(
+                                        text = "${store.name}\n${store.address}",
+                                        fontSize = 47.pxToDp().value.sp,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                }
+
+                                Divider(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    color = Color.LightGray
+                                )
+                            }
                         }
                     }
                 }
@@ -218,15 +246,18 @@ fun MainScreen() {
             items = generateRandomBatchItems()
             Log.d("TestValues", "Values generated - Change count: $changeCount/4")
             showValues = true
+            isRefreshing = false
 
-            repeat(4) {
-                delay(300)
-                showValues = false
-                delay(1000)
-                items = generateRandomBatchItems()
-                changeCount = it + 1
-                Log.d("TestValues", "Values updated - Change count: $changeCount/4")
-                showValues = true
+            if (isAutoGenerateEnabled) {
+                repeat(4) {
+                    delay(300)
+                    showValues = false
+                    delay(1000)
+                    items = generateRandomBatchItems()
+                    changeCount = it + 1
+                    Log.d("TestValues", "Values updated - Change count: $changeCount/4")
+                    showValues = true
+                }
             }
 
             isActive = false
