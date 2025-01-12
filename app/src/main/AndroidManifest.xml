@@ -26,6 +26,10 @@
         <activity
             android:name=".DetailActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".AcceptedOrderActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

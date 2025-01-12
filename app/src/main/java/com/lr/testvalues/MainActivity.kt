@@ -227,14 +227,14 @@ fun MainScreen() {
                 }
             }
 
-            if (showValues) {
-                Text(
-                    text = "Mudanças: $changeCount/4",
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
+//            if (showValues) {
+//                Text(
+//                    text = "Mudanças: $changeCount/4",
+//                    modifier = Modifier
+//                        .padding(16.dp)
+//                        .align(Alignment.CenterHorizontally)
+//                )
+//            }
         }
     }
 

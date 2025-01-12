@@ -4,10 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,38 +13,39 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
 
-
-class DetailActivity : ComponentActivity() {
+class AcceptedOrderActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+        actionBar?.hide()
+
         val value = intent.getStringExtra("value") ?: "0.00"
 
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color.White
+                color = Color.White  // Fundo branco igual à tela anterior
             ) {
-                DetailScreen(value)
+                AcceptedOrderScreen(value)
             }
         }
     }
 }
 
 @Composable
-fun DetailScreen(value: String) {
+fun AcceptedOrderScreen(value: String) {
     val density = LocalDensity.current
-    val context = LocalContext.current
     fun Int.pxToDp() = with(density) { this@pxToDp.toDp() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Valor no topo
+        // Mensagem de sucesso no topo
         Column(
             modifier = Modifier
                 .padding(top = 24.dp)
@@ -55,43 +53,42 @@ fun DetailScreen(value: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "$$value",
-                fontSize = 98.pxToDp().value.sp,
+                text = "Order Accepted!",
+                fontSize = 64.pxToDp().value.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                color = Color(0xFF43B02A)  // Verde do Instacart
             )
         }
 
-        // Spacer para empurrar o botão para baixo
-        Spacer(modifier = Modifier.weight(1f))
+        // Valor no meio
+        Text(
+            text = "$$value",
+            fontSize = 98.pxToDp().value.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black  // Mesma cor do texto da tela anterior
+        )
 
-        // Botão Accept na parte inferior
+        // Botão Start Shopping na parte inferior
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 24.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            // In DetailScreen, update the Button's onClick:
             Button(
-                onClick = {
-                    val intent = Intent(context, AcceptedOrderActivity::class.java).apply {
-                        putExtra("value", value)
-                    }
-                    context.startActivity(intent)
-                },
+                onClick = { },
                 modifier = Modifier
                     .height(142.pxToDp())
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF43B02A)
+                    backgroundColor = Color(0xFF43B02A)  // Verde do Instacart
                 )
             ) {
                 Text(
-                    text = "Accept",
+                    text = "Start Shopping",
                     fontSize = 47.pxToDp().value.sp,
-                    color = Color.White
+                    color = Color.White  // Texto branco igual ao botão Accept
                 )
             }
         }
