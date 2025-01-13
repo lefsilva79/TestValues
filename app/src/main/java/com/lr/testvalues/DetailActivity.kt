@@ -1,99 +1,104 @@
 package com.lr.testvalues
 
 import android.os.Bundle
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
-
+import android.graphics.Color
+import android.graphics.Typeface
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup.LayoutParams
 
 class DetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val value = intent.getStringExtra("value") ?: "0.00"
 
-        setContent {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = Color.White
-            ) {
-                DetailScreen(value)
+        // Root Layout
+        val rootLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(Color.WHITE)
+        }
+
+        // Valor TextView
+        val valueText = TextView(this).apply {
+            text = "$$value"
+            textSize = 49f // 98px
+            setTextColor(Color.BLACK)
+            gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
+            layoutParams = LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 24
             }
         }
-    }
-}
+        rootLayout.addView(valueText)
 
-@Composable
-fun DetailScreen(value: String) {
-    val density = LocalDensity.current
-    val context = LocalContext.current
-    fun Int.pxToDp() = with(density) { this@pxToDp.toDp() }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-    ) {
-        // Valor no topo
-        Column(
-            modifier = Modifier
-                .padding(top = 24.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "$$value",
-                fontSize = 98.pxToDp().value.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+        // Spacer
+        val spacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                0,
+                1f
             )
         }
+        rootLayout.addView(spacer)
 
-        // Spacer para empurrar o botão para baixo
-        Spacer(modifier = Modifier.weight(1f))
+        // Frame Layout para o botão
+        val buttonFrame = FrameLayout(this).apply {
+            isClickable = true
+            isEnabled = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                172 // height em pixels
+            ).apply {
+                bottomMargin = 24
+                // Adiciona margem horizontal para centralizar o FrameLayout
+                marginStart = 41 // layout_x em pixels
+                marginEnd = 41   // layout_x em pixels
+            }
 
-        // Botão Accept na parte inferior
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            // In DetailScreen, update the Button's onClick:
-            Button(
-                onClick = {
-                    val intent = Intent(context, AcceptedOrderActivity::class.java).apply {
+// Button interno
+            val acceptButton = Button(this@DetailActivity).apply {
+                text = "Accept"
+                isClickable = true
+                isEnabled = true
+                isFocusable = true
+                transformationMethod = null  // Impede que o texto seja convertido para maiúsculas
+                setBackgroundColor(Color.parseColor("#43B02A"))
+                setTextColor(Color.WHITE)
+                textSize = 23.5f // 47px
+
+                // Ajusta o layout do botão para preencher o FrameLayout
+                layoutParams = FrameLayout.LayoutParams(
+                    998, // width em pixels
+                    142  // height em pixels
+                ).apply {
+                    gravity = Gravity.CENTER // Centraliza o botão dentro do FrameLayout
+                }
+
+                setOnClickListener {
+                    val intent = Intent(this@DetailActivity, AcceptedOrderActivity::class.java).apply {
                         putExtra("value", value)
                     }
-                    context.startActivity(intent)
-                },
-                modifier = Modifier
-                    .height(142.pxToDp())
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF43B02A)
-                )
-            ) {
-                Text(
-                    text = "Accept",
-                    fontSize = 47.pxToDp().value.sp,
-                    color = Color.White
-                )
+                    startActivity(intent)
+                }
             }
+            addView(acceptButton)
         }
+        rootLayout.addView(buttonFrame)
+
+        setContentView(rootLayout)
     }
 }
